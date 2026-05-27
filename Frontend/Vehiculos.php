@@ -1,131 +1,117 @@
 <?php
+/**
+ * vehiculos.php - Gestión de vehículos registrados
+ * PHP consume la API Java para CRUD completo
+ */
 require_once 'config.php';
-$mensaje = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'crear') {
-    $datosVehiculo = [
-        'placa'       => strtoupper(trim($_POST['placa'])),
-        'tipo'        => $_POST['tipo'],
-        'propietario' => trim($_POST['propietario']),
-        'telefono'    => trim($_POST['telefono'])
-    ];
-    
-    $respuesta = apiRequest('/vehiculos', 'POST', $datosVehiculo);
-    
-    if (isset($respuesta['error'])) {
-        $mensaje = "<div class='alert error'>Error al registrar: " . htmlspecialchars($respuesta['error']) . "</div>";
+$mensaje = null;
+$error   = null;
+
+// ─── Eliminar vehículo ────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_id'])) {
+    $id   = (int)$_POST['eliminar_id'];
+    $resp = apiRequest("/vehiculos/$id", 'DELETE');
+    if (isset($resp['mensaje'])) {
+        $mensaje = "Vehículo eliminado correctamente.";
     } else {
-        $mensaje = "<div class='alert success'>Vehículo registrado correctamente de forma exitosa.</div>";
+        $error = $resp['error'] ?? 'No se pudo eliminar el vehículo.';
     }
 }
 
-if (isset($_GET['eliminar'])) {
-    $idEliminar = (int)$_GET['eliminar'];
-    $respuesta = apiRequest("/vehiculos/$idEliminar", 'DELETE');
-    
-    if (isset($respuesta['error'])) {
-        $mensaje = "<div class='alert error'>Error al eliminar: " . htmlspecialchars($respuesta['error']) . "</div>";
-    } else {
-        $mensaje = "<div class='alert success'>Vehículo eliminado correctamente.</div>";
-    }
-}
-
-$vehiculos = apiRequest('/vehiculos', 'GET');
+// ─── Listar todos ─────────────────────────────────────────────
+$vehiculos = apiRequest('/vehiculos');
+$errorLista = isset($vehiculos['error']) ? $vehiculos['error'] : null;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Vehículos - Parqueadero Boyacá</title>
+    <title>Vehículos - Parqueadero Boyacá</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="js/app.js"></script>
 </head>
 <body>
-    <nav>
-        <a href="index.php">Inicio</a>
-        <a href="entrada.php">Registrar Entrada</a>
-        <a href="salida.php">Registrar Salida</a>
-        <a href="vehiculos.php">Vehículos</a>
-        <a href="historial.php">Historial</a>
-    </nav>
 
-    <div class="container">
-        <h1>Gestión de Vehículos Registrados</h1>
-        
-        <?php echo $mensaje; ?>
-
-        <div class="card">
-            <h3>Registrar Nuevo Vehículo</h3>
-            <form method="POST" action="vehiculos.php">
-                <input type="hidden" name="action" value="crear">
-                
-                <div class="form-group">
-                    <label>Placa:</label>
-                    <input type="text" name="placa" placeholder="Ej: BOY001" required maxlength="10">
-                </div>
-                
-                <div class="form-group">
-                    <label>Tipo de Vehículo:</label>
-                    <select name="tipo" required>
-                        <option value="CARRO">Carro</option>
-                        <option value="MOTO">Moto</option>
-                        <option value="CAMION">Camión</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Nombre del Propietario:</label>
-                    <input type="text" name="propietario" placeholder="Ej: Juan Pérez" required maxlength="100">
-                </div>
-                
-                <div class="form-group">
-                    <label>Teléfono de Contacto:</label>
-                    <input type="text" name="telefono" placeholder="Ej: 3101234567" maxlength="15">
-                </div>
-                
-                <button type="submit" class="btn-primary">Guardar Vehículo</button>
-            </form>
-        </div>
-
-        <h2>Listado de Vehículos</h2>
-        <?php if (isset($vehiculos['error']) || !is_array($vehiculos)): ?>
-            <p class="alert error">No se pudo cargar el listado de vehículos.</p>
-        <?php else: ?>
-            <table class="table-data">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Placa</th>
-                        <th>Tipo</th>
-                        <th>Propietario</th>
-                        <th>Teléfono</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($vehiculos)): ?>
-                        <tr><td colspan="6">No hay vehículos registrados en el sistema.</td></tr>
-                    <?php else: ?>
-                        <?php foreach ($vehiculos as $v): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($v['id']); ?></td>
-                            <td><strong><?php echo htmlspecialchars($v['placa']); ?></strong></td>
-                            <td><?php echo htmlspecialchars($v['tipo']); ?></td>
-                            <td><?php echo htmlspecialchars($v['propietario']); ?></td>
-                            <td><?php echo htmlspecialchars($v['telefono'] ?? 'N/A'); ?></td>
-                            <td>
-                                <a href="vehiculos.php?eliminar=<?php echo $v['id']; ?>" 
-                                   class="btn-delete" 
-                                   onclick="return confirm('¿Está seguro de eliminar este vehículo? Se borrarán sus registros asociados.');">
-                                   Eliminar
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+<header class="header">
+    <div class="header-content">
+        <div class="logo">🅿️ Parqueadero Boyacá</div>
+        <nav>
+            <a href="index.php" class="nav-link">🏠 Inicio</a>
+            <a href="entrada.php" class="nav-link">⬇️ Registrar Entrada</a>
+            <a href="historial.php" class="nav-link">📋 Historial</a>
+            <a href="vehiculos.php" class="nav-link active">🚗 Vehículos</a>
+            <a href="reportes.php" class="nav-link">📊 Reportes</a>
+        </nav>
     </div>
+</header>
+
+<main class="container">
+    <h1 class="titulo-pagina">🚗 Vehículos Registrados</h1>
+
+    <?php if ($mensaje): ?>
+        <div class="alerta alerta-exito">✅ <?= htmlspecialchars($mensaje) ?></div>
+    <?php endif; ?>
+    <?php if ($error): ?>
+        <div class="alerta alerta-error">❌ <?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+    <?php if ($errorLista): ?>
+        <div class="alerta alerta-error">❌ Error al cargar vehículos: <?= htmlspecialchars($errorLista) ?></div>
+    <?php else: ?>
+
+    <section class="seccion">
+        <?php if (count($vehiculos) > 0): ?>
+        <div class="buscador no-print">
+            <label for="buscar">🔍 Buscar:</label>
+            <input type="text" id="buscar" class="input-texto" placeholder="Placa, propietario o teléfono...">
+        </div>
+        <div class="tabla-container">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Placa</th>
+                    <th>Tipo</th>
+                    <th>Propietario</th>
+                    <th>Teléfono</th>
+                    <th class="no-print">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($vehiculos as $v): ?>
+                <tr>
+                    <td><?= $v['id'] ?></td>
+                    <td><strong class="placa"><?= htmlspecialchars($v['placa']) ?></strong></td>
+                    <td><span class="badge badge-<?= strtolower($v['tipo']) ?>"><?= $v['tipo'] ?></span></td>
+                    <td><?= htmlspecialchars($v['propietario']) ?></td>
+                    <td><?= htmlspecialchars($v['telefono']) ?></td>
+                    <td class="no-print">
+                        <form method="POST" style="display:inline"
+                              onsubmit="return confirm('¿Eliminar vehículo <?= htmlspecialchars($v['placa']) ?>?')">
+                            <input type="hidden" name="eliminar_id" value="<?= $v['id'] ?>">
+                            <button type="submit" class="btn btn-rojo">🗑️ Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+        <?php else: ?>
+        <div class="mensaje-vacio">
+            🚗 No hay vehículos registrados aún.
+            <a href="entrada.php" class="enlace">Registrar el primero →</a>
+        </div>
+        <?php endif; ?>
+    </section>
+
+    <?php endif; ?>
+</main>
+
+<footer class="footer">
+    <p>SENA CIMM · ADSO 228118 · Regional Boyacá · <?= date('Y') ?></p>
+</footer>
+
+<script src="js/app.js"></script>
 </body>
 </html>

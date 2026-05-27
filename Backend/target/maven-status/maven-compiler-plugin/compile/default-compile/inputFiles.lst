@@ -1,6 +1,8 @@
-C:\Users\PC_04\Desktop\Parqueadero_PHP_JAVA\Backend\src\main\java\dao\RegistroDAO.java
-C:\Users\PC_04\Desktop\Parqueadero_PHP_JAVA\Backend\src\main\java\model\Registro.java
-C:\Users\PC_04\Desktop\Parqueadero_PHP_JAVA\Backend\src\main\java\model\Vehiculo.java
-C:\Users\PC_04\Desktop\Parqueadero_PHP_JAVA\Backend\src\main\java\servlet\RegistroServlet.java
-C:\Users\PC_04\Desktop\Parqueadero_PHP_JAVA\Backend\src\main\java\util\ConexionDB.java
-C:\Users\PC_04\Desktop\Parqueadero_PHP_JAVA\Backend\src\main\java\util\CORSFilter.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\dao\RegistroDAO.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\dao\VehiculoDAO.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\model\Registro.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\model\Vehiculo.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\servlet\RegistroServlet.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\servlet\VehiculoServlet.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\util\ConexionDB.java
+C:\Users\PC_04\Desktop\integrador\backend\src\main\java\sena\adso\parqueadero\util\CORSFilter.java
